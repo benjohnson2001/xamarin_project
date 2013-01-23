@@ -14,7 +14,12 @@ fi
 
 url=$(grep Location imdb_messages.txt | cut -c 11- | rev | cut -c 13- | rev)fullcredits#cast
 
-echo $url
+lynx -dump "$url" > full_cast_and_crew.txt
 
-# rm imdb_messages.txt
-# rm search@q=*
+start=$(grep -n "Cast (in credits order)" full_cast_and_crew.txt | cut -f1 -d:)
+end=$(grep -n "Produced by" full_cast_and_crew.txt | cut -f1 -d:)
+
+sed -n "$start,${end}p" full_cast_and_crew.txt > full_cast.txt
+
+rm imdb_messages.txt
+rm search@q=*
