@@ -1,34 +1,20 @@
 #!/bin/bash
 
-# retrieve list of movies currently playing
-wget -U firefox 'http://www.rottentomatoes.com/syndication/tab/in_theaters.txt' 2> in_theaters_messages.txt
+# faca: find average cast age
+
+title='Lincoln'
+
+wget -U firefox "http://www.google.com/search?q=$title imdb&btnI=Im+Feeling+Lucky" 2> imdb_messages.txt
 
 # error handling if there is connection problem
-if ! grep -q '“in_theaters.txt” saved' in_theaters_messages.txt; then
-	echo "[ERROR] could not connect to rottentomatoes.com feed"
+if ! grep -q "search@q=$title imdb&btnI=Im+Feeling+Lucky""'"" saved" imdb_messages.txt; then
+	echo "[ERROR] could not connect to imdb.com"
 	exit 1
 fi
 
-# parse list for movie titles
-rawlist=$(cat in_theaters.txt | awk 'BEGIN {FS = "\t" } ; NF {print $2}' | sed -e '1,1d')
+url=$(grep Location imdb_messages.txt | cut -c 11- | rev | cut -c 13- | rev)fullcredits#cast
 
-# temporarily change internal field separator to newlines
-OLD_IFS=$IFS
-IFS=$'\n'
+echo $url
 
-# store values in array
-iter=0
-for t in ${rawlist[@]}
-do
-	movies[$iter]="$t"
-#	printf "$iter\n"	
-#	printf "$t\n"	
-	((iter++))	
-done
-
-# printf "\n\n\n${movies[0]}\n\n\n${movies[108]}"
-
-rm in_theaters.txt
-rm in_theaters_messages.txt
-
-IFS=$OLD_IFS
+# rm imdb_messages.txt
+# rm search@q=*
