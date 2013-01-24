@@ -55,6 +55,7 @@ do
 
 		# if birth date is not provided, continue to the next actor
 		if ! grep -q "birthDate\" datetime=" *"${actors[$iter]}"*Im+Feeling+Lucky; then
+			echo -n -e "\r\033[KAge: not listed\tActor: ${actors[$iter]}"
 			rm *"${actors[$iter]}"*Im+Feeling+Lucky		
 			continue
 		fi		
@@ -68,12 +69,13 @@ do
 		sec2=$(date -d $now +'%s')
 		diffsec=$(($sec2 - $sec1))
 		age=$(($diffsec / 365 / 24 / 3600))
-		
-		if [[ $age -gt 100 ]]; then
-			echo ${actors[$iter]}
-		fi
-		
-		echo $age
+				
+		# \r 		moves cursor to beginning of the line		
+		# \033[K 	clears the line for new text		
+		# -n 		does not output the trailing newline
+		# -e 		enables escape sequences
+
+		echo -n -e "\r\033[KAge: $age\tActor: ${actors[$iter]}"
 		acc=$(($acc + $age))
 
 		rm imdb_messages.txt
@@ -82,7 +84,8 @@ do
 	((iter++))	
 done
 
-average_age=$(($acc / $iter))
+average_age=$(bc <<< "scale = 2; $acc / $iter")
+echo $average_age
 
 
 rm imdb_messages.txt

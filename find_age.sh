@@ -1,6 +1,6 @@
 #!/bin/bash
 
-actor='Daniel Day-Lewis'
+actor='Frank Moran'
 
 wget -U firefox "http://www.google.com/search?q=$actor imdb&btnI=Im+Feeling+Lucky" 2> imdb_messages.txt
 
@@ -22,4 +22,5 @@ echo $age
 
 
 rm imdb_messages.txt
-rm *"${actor}"*Im+Feeling+Lucky
+#rm *"${actor}"*Im+Feeling+Lucky
+
