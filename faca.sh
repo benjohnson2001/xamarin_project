@@ -7,7 +7,7 @@ title=$1
 wget -U firefox "http://www.google.com/search?q=$title imdb&btnI=Im+Feeling+Lucky" 2> imdb_messages.txt
 
 # error handling if there is connection problem
-if ! grep -q "$title imdb&btnI=Im+Feeling+Lucky.* saved" imdb_messages.txt; then
+if ! grep -q "saved" imdb_messages.txt; then
 	echo "[ERROR] could not connect to imdb.com"
 	IFS=$OLD_IFS	
 	exit 1
@@ -25,7 +25,8 @@ end=$(grep -n "Produced by" full_cast_and_crew.txt | cut -f1 -d:)
 
 # error handling if there is no cast (i.e. documentaries)
 if [[ $start -eq 0 ]]; then
-	echo -e "\r\033[KMovie: $1\t\tAverage Age: no cast listed"
+	echo -e -n "\r\033[K\033[1A\r\033[K\033[1A\r\033[K\033[1A\r\033[K"
+	echo -e "\r\033[KMovie: $1\r\t\t\t\t\t    Average Age: no ages listed"
 	IFS=$OLD_IFS
 	exit 0
 fi
@@ -57,21 +58,24 @@ do
 		wget -U firefox "http://www.google.com/search?q=${actors[$iter]} imdb&btnI=Im+Feeling+Lucky" 2> imdb_messages.txt
 
 		# error handling if there is connection problem
-		if ! grep -q "${actors[$iter]} imdb&btnI=Im+Feeling+Lucky.* saved" imdb_messages.txt; then
+		if ! grep -q "saved" imdb_messages.txt; then
 			echo "[ERROR] could not connect to imdb.com"
 			IFS=$OLD_IFS		
 			exit 1
 		fi
 
 		# if birth date is not provided, continue to the next actor
-		if ! grep -q "birthDate\" datetime=" *"${actors[$iter]}"*Im+Feeling+Lucky; then
-			echo -n -e "\r\033[KMovie: $1\t\tActor: ${actors[$iter]}\t\tAge: not listed"
-			rm *"${actors[$iter]}"*Im+Feeling+Lucky		
+		if ! grep -q "birthDate\" datetime=" *"${actors[$iter]}"*; then
+		
+
+			echo -e -n "\r\033[K\033[1A\r\033[K\033[1A\r\033[K\033[1A"
+			echo -n -e "\r\033[KMovie: $1\n  |\n  | Actor: ${actors[$iter]}\n  | Age: not listed"
+			rm *"${actors[$iter]}"*	
 			continue
 		fi		
 	
 		# extract the birth date from the value of the datetime id and store the value in date_born
-		date_born=$(grep "birthDate\" datetime=" *"${actors[$iter]}"*Im+Feeling+Lucky | awk 'BEGIN {FS = "datetime=" } ; NF {print $2}' | cut -c 2- | rev | cut -c 3- | rev | sed -e 's/-//g')
+		date_born=$(grep "birthDate\" datetime=" *"${actors[$iter]}"* | awk 'BEGIN {FS = "datetime=" } ; NF {print $2}' | cut -c 2- | rev | cut -c 3- | rev | sed -e 's/-//g')
 		now=$(date +%Y%m%d)
 
 		# determine age by subtracting birth date from the current date
@@ -81,12 +85,13 @@ do
 		age=$(($diffsec / 365 / 24 / 3600))
 				
 
-
-		echo -n -e "\r\033[KMovie: $1\t\tActor: ${actors[$iter]}\t\tAge: $age"
+ 
+		echo -e -n "\r\033[K\033[1A\r\033[K\033[1A\r\033[K\033[1A"	
+		echo -n -e "\r\033[KMovie: $1\n  |\n  | Actor: ${actors[$iter]}\n  | Age: $age"
 		acc=$(($acc + $age))
 
 		rm imdb_messages.txt
-		rm *"${actors[$iter]}"*Im+Feeling+Lucky
+		rm *"${actors[$iter]}"*
 
 	((iter++))	
 done
@@ -94,7 +99,10 @@ done
 
 
 	average_age=$(bc <<< "scale = 2; $acc / $iter")
-	echo -e "\r\033[KMovie: $1\t\tAverage Age: $average_age"	
+
+	# clear line, move up one line, clear line
+	echo -e -n "\r\033[K\033[1A\r\033[K\033[1A\r\033[K\033[1A\r\033[K"
+	echo -e "Movie: $1\r\t\t\t\t\t    Average Age: $average_age"	
 
 
 
@@ -103,7 +111,4 @@ done
 rm imdb_messages.txt
 rm full_cast_and_crew.txt
 rm full_cast.txt
-rm *"${title}"*Im+Feeling+Lucky
-
-
-
+rm search*
