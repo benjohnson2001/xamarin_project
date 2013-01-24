@@ -26,7 +26,7 @@ do
 	((iter++))	
 done
 
-# printf "\n\n\n${movies[0]}\n\n\n${movies[108]}"
+printf "\n\n\n${movies[0]}\n\n\n${movies[108]}"
 
 rm in_theaters.txt
 rm in_theaters_messages.txt

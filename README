@@ -1,0 +1,5 @@
+dependencies
+
+-wget
+-lynx
+-firefox
