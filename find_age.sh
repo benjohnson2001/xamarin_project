@@ -11,7 +11,7 @@ if ! grep -q "$actor imdb&btnI=Im+Feeling+Lucky.* saved" imdb_messages.txt; then
 fi
 
 # extract the birth date from the value of the datetime id and store the value in date_born
-date_born=$(grep datetime= search\?q\=Daniel\ Day-Lewis\ imdb\&btnI\=Im+Feeling+Lucky | awk 'BEGIN {FS = "datetime=" } ; NF {print $2}' | cut -c 2- | rev | cut -c 3- | rev | sed -e 's/-//g')
+date_born=$(grep "birthDate\" datetime=" *"$actor"*Im+Feeling+Lucky | awk 'BEGIN {FS = "datetime=" } ; NF {print $2}' | cut -c 2- | rev | cut -c 3- | rev | sed -e 's/-//g')
 now=$(date +%Y%m%d)
 
 sec1=$(date -d $date_born +'%s')

@@ -36,13 +36,53 @@ rawlist=$(cat raw_full_cast.txt | grep '\.\.\.' | awk 'BEGIN {FS = "[.][.][.]"} 
 OLD_IFS=$IFS
 IFS=$'\n'
 
+#accumulator
+acc=0
+
 # store actor names in array
 iter=0
 for t in ${rawlist[@]}
 do
 	actors[$iter]="$t"
+
+		wget -U firefox "http://www.google.com/search?q=${actors[$iter]} imdb&btnI=Im+Feeling+Lucky" 2> imdb_messages.txt
+
+		# error handling if there is connection problem
+		if ! grep -q "${actors[$iter]} imdb&btnI=Im+Feeling+Lucky.* saved" imdb_messages.txt; then
+			echo "[ERROR] could not connect to imdb.com"
+			exit 1
+		fi
+
+		# if birth date is not provided, continue to the next actor
+		if ! grep -q "birthDate\" datetime=" *"${actors[$iter]}"*Im+Feeling+Lucky; then
+			rm *"${actors[$iter]}"*Im+Feeling+Lucky		
+			continue
+		fi		
+	
+		# extract the birth date from the value of the datetime id and store the value in date_born
+		date_born=$(grep "birthDate\" datetime=" *"${actors[$iter]}"*Im+Feeling+Lucky | awk 'BEGIN {FS = "datetime=" } ; NF {print $2}' | cut -c 2- | rev | cut -c 3- | rev | sed -e 's/-//g')
+		now=$(date +%Y%m%d)
+
+		# determine age by subtracting birth date from the current date
+		sec1=$(date -d $date_born +'%s')
+		sec2=$(date -d $now +'%s')
+		diffsec=$(($sec2 - $sec1))
+		age=$(($diffsec / 365 / 24 / 3600))
+		
+		if [[ $age -gt 100 ]]; then
+			echo ${actors[$iter]}
+		fi
+		
+		echo $age
+		acc=$(($acc + $age))
+
+		rm imdb_messages.txt
+		rm *"${actors[$iter]}"*Im+Feeling+Lucky
+
 	((iter++))	
 done
+
+average_age=$(($acc / $iter))
 
 
 rm imdb_messages.txt
