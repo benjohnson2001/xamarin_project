@@ -41,16 +41,13 @@ iter=0
 for t in ${rawlist[@]}
 do
 	actors[$iter]="$t"
-#	printf "$iter\n"	
-#	printf "$t\n"	
 	((iter++))	
 done
 
-#printf "\n\n\n${actors[0]}\n\n\n${actors[169]}\n"
 
 rm imdb_messages.txt
 rm full_cast_and_crew.txt
 rm raw_full_cast.txt
-rm *${title}*Im+Feeling+Lucky
+rm *"${title}"*Im+Feeling+Lucky
 
 IFS=$OLD_IFS

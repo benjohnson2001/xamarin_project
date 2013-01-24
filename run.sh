@@ -21,12 +21,8 @@ iter=0
 for t in ${rawlist[@]}
 do
 	movies[$iter]="$t"
-#	printf "$iter\n"	
-#	printf "$t\n"	
 	((iter++))	
 done
-
-printf "\n\n\n${movies[0]}\n\n\n${movies[108]}"
 
 rm in_theaters.txt
 rm in_theaters_messages.txt
