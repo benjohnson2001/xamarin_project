@@ -1,5 +1,19 @@
+find average age of cast for movies currently playing in theaters
+------------------------------------------------------------------------
+
+To run the program, enter the following at the command line of the program directory: ./run.sh
+
+
 dependencies
 
 -wget
 -lynx
 -firefox
+
+
+known issues
+
+- 	The movies Les Misérables and Café are not processed since they have a funny e character
+
+- 	If there are two actors with the same name, the more famous one will be selected even
+	if that person is not in the movie

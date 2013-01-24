@@ -6,6 +6,7 @@ wget -U firefox 'http://www.rottentomatoes.com/syndication/tab/in_theaters.txt' 
 # error handling if there is connection problem
 if ! grep -q '“in_theaters.txt” saved' in_theaters_messages.txt; then
 	echo "[ERROR] could not connect to rottentomatoes.com feed"
+	IFS=$OLD_IFS
 	exit 1
 fi
 
@@ -21,6 +22,19 @@ iter=0
 for t in ${rawlist[@]}
 do
 	movies[$iter]="$t"
+		
+		# \r 		moves cursor to beginning of the line		
+		# \033[K 	clears the line for new text		
+		# -n 		does not output the trailing newline
+		# -e 		enables escape sequences	
+		
+		echo -n -e "\r\033[KMovie: ${movies[$iter]}\t\t"
+
+	# find average age
+	bash faca.sh ${movies[$iter]}
+
+	sleep 10
+
 	((iter++))	
 done
 
