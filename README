@@ -1,7 +1,7 @@
 find average age of cast for movies currently playing in theaters
 ------------------------------------------------------------------------
 
-To run the program, enter the following at the command line of the program directory: ./run.sh
+To run the program, enter the following at the command line of the program directory: bash run.sh
 
 dependencies
 
@@ -14,6 +14,6 @@ known issues
 
 - The program does not check if the actor has died, therefore actors present in the film through archival footage will report inflated ages
 
-- Les Misérables does not display properly in the output
+- Les Misérables does not display properly in the output due to the é character
 
-- Some movies display no ages listed even when there are, this is due to the start or end strings surrounding the cast list not being present due to inconsistent imdb formatting
+- Some movies display no ages listed even when there are, this because start or end strings surrounding the cast list are sometimes not present due to inconsistent imdb formatting
