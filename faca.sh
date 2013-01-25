@@ -18,6 +18,34 @@ fi
 # modify url to display full cast information
 url=$(grep Location imdb_messages.txt | cut -c 11- | rev | cut -c 13- | rev)fullcredits#cast
 
+		# save html source to file
+		wget -U firefox "$url" 2> /dev/null
+		
+		# find line numbers surrounding cast list
+		start=$(grep -n "(in.*order)" fullcredits | cut -f1 -d:)
+		end=$(grep -n "Produced by" fullcredits | cut -f1 -d:)		
+		
+		# crop document for cast list
+		sed -n "$start,$(($end-1))p" fullcredits | awk 'BEGIN {FS = "rder)" } ; NF {print $2}' > castlist.txt
+				
+		rm fullcredits		
+				
+		# extract links from "fullcredits" source file, extract name tags and remove duplicates
+		links=$(python extract_links.py castlist.txt | grep nm | uniq)
+		
+		# store actor imdb urls in array
+		# temporarily change internal field separator to newlines, helps avoid word splitting issues
+		OLD_IFS=$IFS
+		IFS=$'\n'
+
+		# store actor names in bash array
+		i=0
+		for t in ${links[@]}
+		do
+			actor_url[i]=http://www.imdb.com$t
+			((i++))
+		done		
+
 # fetch text version of website
 lynx -dump "$url" > full_cast_and_crew.txt
 
@@ -56,10 +84,6 @@ rawlist=$(cat full_cast.txt | grep '\.\.\.' | awk 'BEGIN {FS = "[.][.][.]"} ; NF
 #accumulator
 acc=0
 
-# temporarily change internal field separator to newlines, helps avoid word splitting issues
-OLD_IFS=$IFS
-IFS=$'\n'
-
 # store actor names in bash array
 iter=0
 for t in ${rawlist[@]}
@@ -68,15 +92,15 @@ do
 	actors[$iter]="$t"
 
 	# retrieve html source file of actor's imdb page
-	wget -U firefox "http://www.google.com/search?q=${actors[$iter]} imdb&btnI=Im+Feeling+Lucky" 2> imdb_messages.txt
-
+	wget -O ${actors[$iter]} -U firefox "${actor_url[$iter]}" 2> imdb_messages.txt
+					
 	# error handling if there is connection problem
 	if ! grep -q "saved" imdb_messages.txt; then
 		echo "[ERROR] could not connect to imdb.com"
 		rm imdb_messages.txt
 		rm full_cast_and_crew.txt
 		rm full_cast.txt
-		rm search*		
+		rm ${actors[$iter]}		
 		IFS=$OLD_IFS		
 		exit 1
 	fi
@@ -85,12 +109,8 @@ do
 	if ! grep -q "birthDate\" datetime=" *"${actors[$iter]}"*; then
 		echo -e -n "\r\033[K\033[1A\r\033[K\033[1A\r\033[K\033[1A\r\033[K"
 		echo -n -e "\r\033[KMovie: $1\n  |\n  | Actor: ${actors[$iter]}\n  | Age: not listed"
-		
-	# check if file exists using wildcard
-	if ls search* > /dev/null 2>&1; then
-		rm search*
-	fi
-		
+				
+		((iter++))	
 		continue
 	fi		
 
@@ -123,12 +143,6 @@ do
 
 	# clear files for next loop
 	rm imdb_messages.txt
-	
-	
-	# check if file exists using wildcard
-	if ls search* > /dev/null 2>&1; then
-		rm search*
-	fi
 
 	((iter++))	
 done
@@ -160,12 +174,7 @@ fi
 
 rm full_cast_and_crew.txt
 rm full_cast.txt
-
-# check if file exists using wildcard
-if ls search* > /dev/null 2>&1; then
-	rm search*
-fi
-
+rm ${actors[$iter]}	
 
 # return environment variable to previous state
 IFS=$OLD_IFS
