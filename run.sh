@@ -13,35 +13,32 @@ fi
 # parse list for movie titles
 rawlist=$(cat in_theaters.txt | awk 'BEGIN {FS = "\t" } ; NF {print $2}' | sed -e '1,1d')
 
-# temporarily change internal field separator to newlines
+# temporarily change internal field separator to newlines, helps avoid word splitting issues
 OLD_IFS=$IFS
 IFS=$'\n'
 
-# store values in array
+# store movie titles in bash array
 iter=0
 for t in ${rawlist[@]}
 do
 	movies[$iter]="$t"
 		
-		# \r 		moves cursor to beginning of the line		
-		# \033[K 	clears the line for new text		
-		# -n 		does not output the trailing newline
-		# -e 		enables escape sequences	
+	# print movie title to screen	
+	#	 \r 		moves cursor to beginning of the line		
+	#	 \033[K 	clears the line for new text		
+	#	 -n 		does not output the trailing newline
+	#	 -e 		enables escape sequences			
+	echo -n -e "\r\033[KMovie: ${movies[$iter]}\n\n\n"
 		
-		echo -n -e "\r\033[KMovie: ${movies[$iter]}\n\n\n"
-		
-	# strip newlines	
-	param=$(echo ${movies[$iter]} | perl -ne 'chomp and print')
-
 	# find average age
-	bash faca.sh $param
-
-	sleep 10
+	bash faca.sh ${movies[$iter]}
 
 	((iter++))	
 done
 
+# clean up files that are no longer needed
 rm in_theaters.txt
 rm in_theaters_messages.txt
 
+# return environment variable to previous state
 IFS=$OLD_IFS
