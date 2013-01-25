@@ -86,9 +86,10 @@ do
 		echo -e -n "\r\033[K\033[1A\r\033[K\033[1A\r\033[K\033[1A\r\033[K"
 		echo -n -e "\r\033[KMovie: $1\n  |\n  | Actor: ${actors[$iter]}\n  | Age: not listed"
 		
-		if [[ -f search* ]]; then
-			rm search*
-		fi
+	# check if file exists using wildcard
+	if ls search* > /dev/null 2>&1; then
+		rm search*
+	fi
 		
 		continue
 	fi		
@@ -123,7 +124,9 @@ do
 	# clear files for next loop
 	rm imdb_messages.txt
 	
-	if [[ -f search* ]]; then
+	
+	# check if file exists using wildcard
+	if ls search* > /dev/null 2>&1; then
 		rm search*
 	fi
 
@@ -158,7 +161,8 @@ fi
 rm full_cast_and_crew.txt
 rm full_cast.txt
 
-if [[ -f search* ]]; then
+# check if file exists using wildcard
+if ls search* > /dev/null 2>&1; then
 	rm search*
 fi
 

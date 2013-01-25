@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # retrieve list of movies currently playing
-# wget -U firefox 'http://www.rottentomatoes.com/syndication/tab/in_theaters.txt' 2> in_theaters_messages.txt
+wget -U firefox 'http://www.rottentomatoes.com/syndication/tab/in_theaters.txt' 2> in_theaters_messages.txt
 
 # error handling if there is connection problem
 if ! grep -q 'saved' in_theaters_messages.txt; then
