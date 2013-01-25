@@ -85,7 +85,11 @@ do
 	if ! grep -q "birthDate\" datetime=" *"${actors[$iter]}"*; then
 		echo -e -n "\r\033[K\033[1A\r\033[K\033[1A\r\033[K\033[1A\r\033[K"
 		echo -n -e "\r\033[KMovie: $1\n  |\n  | Actor: ${actors[$iter]}\n  | Age: not listed"
-		rm *"${actors[$iter]}"*	
+		
+		if [[ -f search* ]]; then
+			rm search*
+		fi
+		
 		continue
 	fi		
 
@@ -97,6 +101,11 @@ do
 	if [[ "${#date_born}" -eq 4 ]]; then
 		date_born=${date_born}0101
 	fi
+	
+	# if only the birth year and month is given, pad the number
+	if [[ "${#date_born}" -eq 6 ]]; then
+		date_born=${date_born}01
+	fi	
 
 	# determine age by subtracting birth date from the current date
 	sec1=$(date -d $date_born +'%s')
@@ -113,11 +122,23 @@ do
 
 	# clear files for next loop
 	rm imdb_messages.txt
-	rm *"${actors[$iter]}"*
+	
+	if [[ -f search* ]]; then
+		rm search*
+	fi
 
 	((iter++))	
 done
 
+	# if there are no ages listed, print the results
+	if [[ $acc -eq 0 ]]; then
+		echo -e -n "\r\033[K\033[1A\r\033[K\033[1A\r\033[K\033[1A\r\033[K"
+		echo -e "\r\033[KMovie: $1\r\t\t\t\t\t    Average Age: no ages listed"
+		IFS=$OLD_IFS
+		rm imdb_messages.txt
+		rm full_cast_and_crew.txt
+		exit 0
+	fi
 
 	# calculate average age of cast
 	average_age=$(bc <<< "scale = 2; $acc / $iter")
@@ -136,7 +157,11 @@ fi
 
 rm full_cast_and_crew.txt
 rm full_cast.txt
-rm search*
+
+if [[ -f search* ]]; then
+	rm search*
+fi
+
 
 # return environment variable to previous state
 IFS=$OLD_IFS

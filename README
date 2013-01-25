@@ -3,7 +3,6 @@ find average age of cast for movies currently playing in theaters
 
 To run the program, enter the following at the command line of the program directory: ./run.sh
 
-
 dependencies
 
 -wget
@@ -13,8 +12,7 @@ dependencies
 
 known issues
 
-- The movies Les Misérables and Café are not processed since they have a funny e character
+- There is some skipping in the output due to special character like é not being processed properly
 
 - If there are two actors with the same name, the more famous one will be selected even if that person is not in the movie since the results are obtained via google search. This should really be done by retrieving the actor links directly from the full cast imdb page.
 
-- if only the birth year is given, then the age is erroneously given as 0
