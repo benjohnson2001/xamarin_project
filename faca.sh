@@ -98,6 +98,11 @@ acc=0
 # number of actors
 nac=0
 
+youngest_age=500
+oldest_age=0
+youngest_actor=""
+oldest_actor=""
+
 # store actor names in bash array
 iter=0
 for t in ${rawlist[@]}
@@ -138,6 +143,17 @@ do
 	diffsec=$(($sec2 - $sec1))
 	age=$(($diffsec / 365 / 24 / 3600))
 		
+	if [[ $age -lt $youngest_age ]]; then
+		youngest_age=$age
+		youngest_actor=${actors[iter]}
+	fi
+	
+	if [[ $age -gt $oldest_age ]]; then
+		oldest_age=$age
+		oldest_actor=${actors[iter]}		
+	fi
+		
+		
 	# accumulate ages for calculation of average
 	acc=$(($acc + $age))	
 
@@ -157,6 +173,9 @@ done
 	if [[ $acc -eq 0 ]]; then
 		echo -e -n "\r\033[K\033[1A\r\033[K\033[1A\r\033[K\033[1A\r\033[K"
 		echo -e "\r\033[KMovie: $1\r\t\t\t\t\t    Average Age: no ages listed"
+		echo -e "    Youngest: \r\t\t\t\t\t    Age: "
+		echo -e "    Oldest: \r\t\t\t\t\t    Age: "					
+					
 		IFS=$OLD_IFS
 		rm imdb_messages.txt
 		rm full_cast_and_crew.txt
@@ -168,7 +187,9 @@ done
 
 	# clear last three lines and print result
 	echo -e -n "\r\033[K\033[1A\r\033[K\033[1A\r\033[K\033[1A\r\033[K"
-	echo -e "Movie: $1\r\t\t\t\t\t    Average Age: $average_age"	
+	echo -e "Movie: $1\r\t\t\t\t\t    Average Age: $average_age"
+	echo -e "    Youngest: $youngest_actor\r\t\t\t\t\t    Age: $youngest_age"
+	echo -e "    Oldest: $oldest_actor\r\t\t\t\t\t    Age: $oldest_age"					
 
 
 # clean up files for next invocation
